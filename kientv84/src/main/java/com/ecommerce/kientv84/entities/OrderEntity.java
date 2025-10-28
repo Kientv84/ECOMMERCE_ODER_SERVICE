@@ -30,8 +30,12 @@ public class OrderEntity {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
     private UUID id;
 
+    @Column(name = "order_code")
+    private String orderCode;
+
     @Column(name = "user_id", nullable = false, columnDefinition = "uuid")
     private UUID userId; // Nếu user tách service, chỉ lưu userId
+
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> orderItems;

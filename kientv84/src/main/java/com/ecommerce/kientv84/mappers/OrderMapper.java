@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
-    OrderResponse MapToOrderResponse(OrderEntity orderEntity);
+    OrderResponse mapToOrderResponse(OrderEntity orderEntity);
 }

@@ -4,13 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 @Setter
 @Getter
 @AllArgsConstructor
 public class OrderRequest {
     private UUID userId;
-    private ItemRequest item;
+    private List<ItemRequest> items;
     private UUID paymentMethod;
     private String shippingAddress;
 }

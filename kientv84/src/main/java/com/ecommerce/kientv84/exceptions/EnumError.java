@@ -11,9 +11,9 @@ import org.springframework.http.HttpStatus;
 public enum EnumError {
 
     //----------- ORDER ------------
-    ACC_DATA_EXISTED("ACC-DTE", "Data exit", HttpStatus.CONFLICT),
+    ORDER_DATA_EXISTED("ORDER-DTE", "Data exit", HttpStatus.CONFLICT),
 
-
+    ORDER_GET_ERROR("ORDER-GET-ERROR", "Have error in process get order", HttpStatus.BAD_REQUEST),
     INTERNAL_ERROR("ACC-S-999", "Unexpected internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     private final String code;
     private final String defaultMessage;
