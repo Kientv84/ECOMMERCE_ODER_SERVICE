@@ -64,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
                     .userId(request.getUserId())
                     .orderCode(UUID.randomUUID().toString().substring(0, 8))
                     .status(OrderStatus.PENDING)
-                    .paymentId(request.getPaymentMethod())
+                    .paymentMethod(request.getPaymentMethod())
                     .shippingAddress(request.getShippingAddress())
                     .build();
 
@@ -130,16 +130,62 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse getOrderById(UUID id) {
-        return null;
+        try {
+            OrderEntity order = orderRepository.findById(id).orElseThrow(() -> new ServiceException(EnumError.ORDER_GET_ERROR, "order.get.error"));
+
+            return  orderMapper.mapToOrderResponse(order);
+        } catch (ServiceException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
+        }
     }
 
     @Override
     public OrderResponse updateOrderById(UUID id, OrderUpdateRequest updateRequest) {
-        return null;
+        try {
+            OrderEntity order = orderRepository.findById(id).orElseThrow(() -> new ServiceException(EnumError.ORDER_GET_ERROR, "order.get.error"));
+
+            if ( updateRequest.getShippingAddress() != null) {
+                order.setShippingAddress(updateRequest.getShippingAddress());
+            }
+            if(updateRequest.getStatus() != null) {
+                order.setStatus(updateRequest.getStatus());
+            }
+
+            orderRepository.save(order);
+
+            return  orderMapper.mapToOrderResponse(order);
+        } catch (ServiceException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
+        }
     }
 
     @Override
     public String deleteOrder(List<UUID> ids) {
-        return "";
+        try {
+            if ( ids == null || ids.isEmpty()) {
+                throw new ServiceException(EnumError.ORDER_ERR_DEL_EM, "order.delete.empty");
+            }
+
+            List<OrderEntity> foundIds = orderRepository.findAllById(ids);
+
+            System.out.println("Find collection:" + foundIds.toString());
+
+            if ( foundIds.isEmpty()) {
+                throw new ServiceException(EnumError.ORDER_ERR_NOT_FOUND, "order.delete.notfound");
+            }
+
+            orderRepository.deleteAllById(ids);
+
+            return "Deleted collections successfully: {}" + ids;
+
+        } catch (Exception e) {
+            throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
+        }
     }
 }

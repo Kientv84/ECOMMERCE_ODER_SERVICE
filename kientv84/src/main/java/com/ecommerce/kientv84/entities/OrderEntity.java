@@ -48,7 +48,7 @@ public class OrderEntity {
 
     // Payment
     @Column(name = "payment_id", columnDefinition = "uuid")
-    private UUID paymentId;
+    private UUID paymentMethod;
 
     // Shipping
     @Column(name = "shipping_address", length = 500)

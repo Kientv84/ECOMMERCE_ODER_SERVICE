@@ -12,6 +12,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 public class OrderResponse {
+    private UUID id;
     private UUID userId;
     private String orderCode;
     private UUID paymentMethod;

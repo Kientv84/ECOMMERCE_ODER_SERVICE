@@ -3,10 +3,12 @@ package com.ecommerce.kientv84.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -19,6 +21,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "order_item")
+@EntityListeners(AuditingEntityListener.class)
 public class OrderItemEntity {
 
     @Id

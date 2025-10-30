@@ -4,6 +4,7 @@ import com.ecommerce.kientv84.dtos.requests.OrderRequest;
 import com.ecommerce.kientv84.dtos.requests.OrderUpdateRequest;
 import com.ecommerce.kientv84.dtos.responses.OrderResponse;
 import com.ecommerce.kientv84.services.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +18,13 @@ import java.util.UUID;
 public class OrderController {
     private final OrderService orderService;
 
-    @GetMapping("/ordes")
+    @GetMapping("/orders")
     public ResponseEntity<List<OrderResponse>> getAllOrder() {
         return ResponseEntity.ok(orderService.getAllOrder());
     }
 
     @PostMapping("/order")
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request) {
+    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request) {
         return ResponseEntity.ok(orderService.createOrder(request));
     }
 
@@ -33,7 +34,7 @@ public class OrderController {
     }
 
     @PostMapping("/order/{id}")
-    public ResponseEntity<OrderResponse> updateOrderById(@PathVariable UUID id,@RequestBody OrderUpdateRequest updateRequest) {
+    public ResponseEntity<OrderResponse> updateOrderById(@PathVariable UUID id, @RequestBody OrderUpdateRequest updateRequest) {
         return ResponseEntity.ok(orderService.updateOrderById(id, updateRequest));
     }
 
