@@ -14,7 +14,12 @@ public enum EnumError {
     ORDER_DATA_EXISTED("ORDER-DTE", "Data exit", HttpStatus.CONFLICT),
 
     ORDER_GET_ERROR("ORDER-GET-ERROR", "Have error in process get order", HttpStatus.BAD_REQUEST),
-    INTERNAL_ERROR("ACC-S-999", "Unexpected internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+    INTERNAL_ERROR("ACC-S-999", "Unexpected internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    //----------- EXTERNAL SERVICES ------------
+    PRODUCT_NOT_FOUND("PRODUCT-404", "Product not found", HttpStatus.NOT_FOUND),
+    PRODUCT_SERVICE_UNAVAILABLE("PRODUCT-503", "Product service unavailable", HttpStatus.SERVICE_UNAVAILABLE);
+
     private final String code;
     private final String defaultMessage;
     private final HttpStatus httpStatus;

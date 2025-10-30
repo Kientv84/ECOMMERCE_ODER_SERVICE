@@ -15,6 +15,6 @@ public interface ProductClient {
     @GetMapping(
             value = "${openfeign.productClient.url.get-product}",
             consumes = "application/json")
-    ProductClientResponse getProductById(UUID productId);
+    ProductClientResponse getProductById(@PathVariable UUID productId);
 
 }

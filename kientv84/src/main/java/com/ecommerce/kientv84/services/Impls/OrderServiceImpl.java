@@ -12,18 +12,25 @@ import com.ecommerce.kientv84.enums.OrderStatus;
 import com.ecommerce.kientv84.exceptions.EnumError;
 import com.ecommerce.kientv84.exceptions.ServiceException;
 import com.ecommerce.kientv84.mappers.OrderItemMapper;
+import com.ecommerce.kientv84.messagsing.producer.OrderProducer;
 import com.ecommerce.kientv84.repositories.OrderItemRepository;
 import com.ecommerce.kientv84.mappers.OrderMapper;
 import com.ecommerce.kientv84.repositories.OrderRepository;
 import com.ecommerce.kientv84.services.OrderService;
+import com.ecommerce.kientv84.utils.KafkaObjectError;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
+@Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
@@ -31,6 +38,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemMapper orderItemMapper;
     private final ProductClient productClient;
     private final OrderItemRepository orderItemRepository;
+    private final OrderProducer orderProducer;
+
+    private final static String timestamp = "timestamp";
 
     @Override
     public List<OrderResponse> getAllOrder() {
@@ -47,13 +57,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional // Đánh dấu đây kà 1 transaction chạy logic để thao tác với dữ liệu,  đảm bảo tính ACID, nếu có @transactional thì khi 1 chuỗi thao tác đó có vấn đề thì sẽ rollback toàn bộ, đảm bảo tính atomicity
     @Override
     public OrderResponse createOrder(OrderRequest request) {
+        log.info("[createOrder] start create order ....");
         try {
-
             // Init order
             OrderEntity orderEntity = OrderEntity.builder()
                     .userId(request.getUserId())
                     .orderCode(UUID.randomUUID().toString().substring(0, 8))
                     .status(OrderStatus.PENDING)
+                    .paymentId(request.getPaymentMethod())
                     .shippingAddress(request.getShippingAddress())
                     .build();
 
@@ -65,9 +76,17 @@ public class OrderServiceImpl implements OrderService {
                 BigDecimal lineTotal = itemRequest.getBasePrice()
                         .multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
 
-                // Gọi api get product By Id từ product service để get dữ liệu
-
-                ProductClientResponse product = productClient.getProductById(itemRequest.getProductId());
+                // --- Gọi Product Service ---
+                ProductClientResponse product;
+                try {
+                    product = productClient.getProductById(itemRequest.getProductId());
+                } catch (FeignException.NotFound e) {
+                    log.error("Product not found: {}", itemRequest.getProductId(), e);
+                    throw new ServiceException(EnumError.PRODUCT_NOT_FOUND, "product.not.found");
+                } catch (FeignException e) {
+                    log.error("Error calling Product Service", e);
+                    throw new ServiceException(EnumError.PRODUCT_SERVICE_UNAVAILABLE, "product.service.unavailable");
+                }
 
                 totalPrice = totalPrice.add(lineTotal);
 
@@ -78,22 +97,33 @@ public class OrderServiceImpl implements OrderService {
                         .productName(product.getProductName())
                         .quantity(itemRequest.getQuantity())
                         .lineTotal(lineTotal)
+                        .productPrice(product.getBasePrice())
                         .build();
 
                 orderItems.add(item);
             }
 
-            orderEntity.setOrderItems(orderItems);
+            orderEntity.setItems(orderItems);
             orderEntity.setTotalPrice(totalPrice);
 
             OrderEntity savedOrder =  orderRepository.save(orderEntity);
 
-            // producer message lên kfka
+            OrderResponse response = orderMapper.mapToOrderResponse(savedOrder);
+            // producer message lên kafka
 
-            return orderMapper.mapToOrderResponse(savedOrder);
+            orderProducer.produceOrderEventSuccess(response);
+
+            return response;
         } catch (ServiceException e) {
             throw e;
         } catch (Exception e) {
+            log.error("Error creating order", e);
+
+            // Produce error message
+            log.error("[createOrder] Error: {}", e.getMessage(), e);
+            KafkaObjectError kafkaObjectError = new KafkaObjectError("OS-001", null, e.getMessage());
+            orderProducer.produceMessageError(kafkaObjectError);
+
             throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
         }
     }

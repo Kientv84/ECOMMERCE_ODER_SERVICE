@@ -38,7 +38,7 @@ public class OrderEntity {
 
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItemEntity> orderItems;
+    private List<OrderItemEntity> items;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
