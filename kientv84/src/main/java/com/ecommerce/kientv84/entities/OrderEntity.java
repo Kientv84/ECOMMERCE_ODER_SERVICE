@@ -1,6 +1,7 @@
 package com.ecommerce.kientv84.entities;
 
 import com.ecommerce.kientv84.enums.OrderStatus;
+import com.ecommerce.kientv84.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -39,6 +40,11 @@ public class OrderEntity {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> items;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    private PaymentStatus paymentStatus;
+
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;

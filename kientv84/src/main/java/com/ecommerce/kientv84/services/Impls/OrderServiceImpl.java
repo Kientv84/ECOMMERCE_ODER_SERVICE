@@ -9,6 +9,7 @@ import com.ecommerce.kientv84.dtos.responses.clients.ProductClientResponse;
 import com.ecommerce.kientv84.entities.OrderEntity;
 import com.ecommerce.kientv84.entities.OrderItemEntity;
 import com.ecommerce.kientv84.enums.OrderStatus;
+import com.ecommerce.kientv84.enums.PaymentStatus;
 import com.ecommerce.kientv84.exceptions.EnumError;
 import com.ecommerce.kientv84.exceptions.ServiceException;
 import com.ecommerce.kientv84.mappers.OrderItemMapper;
@@ -63,7 +64,8 @@ public class OrderServiceImpl implements OrderService {
             OrderEntity orderEntity = OrderEntity.builder()
                     .userId(request.getUserId())
                     .orderCode(UUID.randomUUID().toString().substring(0, 8))
-                    .status(OrderStatus.PENDING)
+                    .status(OrderStatus.CREATED)
+                    .paymentStatus(PaymentStatus.PENDING)
                     .paymentMethod(request.getPaymentMethod())
                     .shippingAddress(request.getShippingAddress())
                     .build();
@@ -111,7 +113,7 @@ public class OrderServiceImpl implements OrderService {
             OrderResponse response = orderMapper.mapToOrderResponse(savedOrder);
             // producer message lên kafka
 
-            orderProducer.produceOrderEventSuccess(response);
+            orderProducer.produceOrderEventSuccess(orderMapper.mapToKafkaOrderResponse(response));
 
             return response;
         } catch (ServiceException e) {
