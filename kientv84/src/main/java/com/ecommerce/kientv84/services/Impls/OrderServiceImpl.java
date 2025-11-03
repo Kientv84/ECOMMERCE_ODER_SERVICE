@@ -13,7 +13,7 @@ import com.ecommerce.kientv84.enums.PaymentStatus;
 import com.ecommerce.kientv84.exceptions.EnumError;
 import com.ecommerce.kientv84.exceptions.ServiceException;
 import com.ecommerce.kientv84.mappers.OrderItemMapper;
-import com.ecommerce.kientv84.messagsing.producer.OrderProducer;
+import com.ecommerce.kientv84.messaging.producer.OrderProducer;
 import com.ecommerce.kientv84.repositories.OrderItemRepository;
 import com.ecommerce.kientv84.mappers.OrderMapper;
 import com.ecommerce.kientv84.repositories.OrderRepository;

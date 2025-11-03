@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 @ConfigurationProperties("spring.kafka.order.topic")
 public class KafkaTopicProperties {
-    private String createdOrder;
     private String orderCreated;
     private String errorOrder;
-    private String paymentChecked;
 }
 

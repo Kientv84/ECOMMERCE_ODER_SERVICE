@@ -1,6 +1,5 @@
-package com.ecommerce.kientv84.messagsing.producer;
+package com.ecommerce.kientv84.messaging.producer;
 
-import com.ecommerce.kientv84.dtos.responses.OrderResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderResponse;
 import com.ecommerce.kientv84.properties.KafkaTopicProperties;
 import com.ecommerce.kientv84.services.KafkaService;

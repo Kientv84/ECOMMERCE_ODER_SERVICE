@@ -13,7 +13,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class KafkaOrderResponse {
     private UUID id;
     private UUID userId;

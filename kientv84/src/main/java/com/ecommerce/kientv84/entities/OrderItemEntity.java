@@ -20,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "order_item")
+@Table(name = "order_item_entity")
 @EntityListeners(AuditingEntityListener.class)
 public class OrderItemEntity {
 

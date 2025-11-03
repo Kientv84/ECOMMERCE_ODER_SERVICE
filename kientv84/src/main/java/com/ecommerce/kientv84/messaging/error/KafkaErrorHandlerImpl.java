@@ -1,4 +1,4 @@
-package com.ecommerce.kientv84.messagsing.error;
+package com.ecommerce.kientv84.messaging.error;
 
 import com.ecommerce.kientv84.utils.KafkaObjectError;
 
