@@ -1,11 +1,14 @@
 package com.ecommerce.kientv84.services.Impls;
 
+import com.ecommerce.kientv84.Intergration.PaymentClient;
 import com.ecommerce.kientv84.Intergration.ProductClient;
 import com.ecommerce.kientv84.dtos.requests.ItemRequest;
 import com.ecommerce.kientv84.dtos.requests.OrderRequest;
 import com.ecommerce.kientv84.dtos.requests.OrderUpdateRequest;
 import com.ecommerce.kientv84.dtos.responses.OrderResponse;
+import com.ecommerce.kientv84.dtos.responses.clients.PaymentMethodResponse;
 import com.ecommerce.kientv84.dtos.responses.clients.ProductClientResponse;
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
 import com.ecommerce.kientv84.entities.OrderEntity;
 import com.ecommerce.kientv84.entities.OrderItemEntity;
 import com.ecommerce.kientv84.enums.OrderStatus;
@@ -36,9 +39,7 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
-    private final OrderItemMapper orderItemMapper;
     private final ProductClient productClient;
-    private final OrderItemRepository orderItemRepository;
     private final OrderProducer orderProducer;
 
     private final static String timestamp = "timestamp";
@@ -55,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Transactional // Đánh dấu đây kà 1 transaction chạy logic để thao tác với dữ liệu,  đảm bảo tính ACID, nếu có @transactional thì khi 1 chuỗi thao tác đó có vấn đề thì sẽ rollback toàn bộ, đảm bảo tính atomicity
+    @Transactional
     @Override
     public OrderResponse createOrder(OrderRequest request) {
         log.info("[createOrder] start create order ....");
@@ -78,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
                 BigDecimal lineTotal = itemRequest.getBasePrice()
                         .multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
 
-                // --- Gọi Product Service ---
+                // --- Calling Product Service internal api ---
                 ProductClientResponse product;
                 try {
                     product = productClient.getProductById(itemRequest.getProductId());
@@ -187,6 +188,42 @@ public class OrderServiceImpl implements OrderService {
             return "Deleted collections successfully: {}" + ids;
 
         } catch (Exception e) {
+            throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void listenPaymentService(KafkaPaymentResponse kafkaPaymentResponse) {
+        if (kafkaPaymentResponse == null) {
+            log.error("[listenPaymentService] Missing KafkaPaymentResponse data");
+            return;
+        }
+
+        log.info("[listenPaymentService] Processing payment event: {}", kafkaPaymentResponse);
+
+        try {
+            OrderEntity order = orderRepository.findById(kafkaPaymentResponse.getOrderId())
+                    .orElseThrow(() -> new ServiceException(EnumError.ORDER_ERR_NOT_FOUND, "order.not.found"));
+
+            // Update status payment từ message
+            PaymentStatus newStatus = PaymentStatus.valueOf(kafkaPaymentResponse.getStatus());
+
+            order.setPaymentStatus(newStatus);
+
+            // Nếu thanh toán thành công (hoặc COD_PENDING), cập nhật order status
+            if (newStatus == PaymentStatus.PAID || newStatus == PaymentStatus.COD_PENDING) {
+                //TODO:Set staus order để tracking,  gọi shipping service
+            }
+            // Nếu thanh toán thất bại → hủy đơn
+            else if (newStatus == PaymentStatus.FAILED) {
+                //TODO:Set staus order để FAILED,  gọi noti service
+            }
+
+        } catch (Exception e) {
+            log.error("[listenPaymentService] Error: {}", e.getMessage(), e);
+            KafkaObjectError kafkaError = new KafkaObjectError("OS-002", null, e.getMessage());
+            orderProducer.produceMessageError(kafkaError);
             throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
         }
     }

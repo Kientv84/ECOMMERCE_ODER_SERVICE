@@ -18,8 +18,12 @@ public enum EnumError {
     ORDER_ERR_NOT_FOUND("ORDER-CATE_NF", "Not found sub order with id", HttpStatus.BAD_REQUEST),
     ORDER_ERR_DEL_EM("ORDER-CATE-GA", "List ids to delete is empty", HttpStatus.BAD_REQUEST),
     //----------- EXTERNAL SERVICES ------------
+    //----------- PRODUCE SERVICE ------------
     PRODUCT_NOT_FOUND("PRODUCT-404", "Product not found", HttpStatus.NOT_FOUND),
-    PRODUCT_SERVICE_UNAVAILABLE("PRODUCT-503", "Product service unavailable", HttpStatus.SERVICE_UNAVAILABLE);
+    PRODUCT_SERVICE_UNAVAILABLE("PRODUCT-503", "Product service unavailable", HttpStatus.SERVICE_UNAVAILABLE),
+    //----------- PAYMENT SERVICE ------------
+    PAYMENT_NOT_FOUND("PAYMENT-404", "Payment method not found", HttpStatus.NOT_FOUND),
+    PAYMENT_SERVICE_UNAVAILABLE("PAYMENT-503", "Payment method service unavailable", HttpStatus.SERVICE_UNAVAILABLE);
 
     private final String code;
     private final String defaultMessage;
