@@ -12,5 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class KafkaTopicProperties {
     private String orderCreated;
     private String errorOrder;
+    private String orderReadyForShipping;
 }
 

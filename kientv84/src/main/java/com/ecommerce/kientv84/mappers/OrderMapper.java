@@ -2,6 +2,7 @@ package com.ecommerce.kientv84.mappers;
 
 import com.ecommerce.kientv84.dtos.responses.OrderResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderResponse;
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderShippingResponse;
 import com.ecommerce.kientv84.entities.OrderEntity;
 import org.mapstruct.Mapper;
 
@@ -10,4 +11,5 @@ public interface OrderMapper {
     OrderResponse mapToOrderResponse(OrderEntity orderEntity);
 
     KafkaOrderResponse mapToKafkaOrderResponse(OrderResponse orderResponse);
+    KafkaOrderShippingResponse mapToKafkaOrderShippingResponse(OrderEntity orderEntity);
 }

@@ -112,8 +112,8 @@ public class OrderServiceImpl implements OrderService {
             OrderEntity savedOrder =  orderRepository.save(orderEntity);
 
             OrderResponse response = orderMapper.mapToOrderResponse(savedOrder);
-            // producer message lên kafka
 
+            // producer message lên kafka
             orderProducer.produceOrderEventSuccess(orderMapper.mapToKafkaOrderResponse(response));
 
             return response;
@@ -213,7 +213,9 @@ public class OrderServiceImpl implements OrderService {
 
             // Nếu thanh toán thành công (hoặc COD_PENDING), cập nhật order status
             if (newStatus == PaymentStatus.PAID || newStatus == PaymentStatus.COD_PENDING) {
-                //TODO:Set staus order để tracking,  gọi shipping service
+                //TODO: gọi shipping service
+
+                orderProducer.produceOrderEventShipping(orderMapper.mapToKafkaOrderShippingResponse(order));
             }
             // Nếu thanh toán thất bại → hủy đơn
             else if (newStatus == PaymentStatus.FAILED) {

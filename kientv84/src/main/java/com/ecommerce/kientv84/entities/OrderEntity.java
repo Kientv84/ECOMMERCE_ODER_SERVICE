@@ -37,6 +37,11 @@ public class OrderEntity {
     @Column(name = "user_id", nullable = false, columnDefinition = "uuid")
     private UUID userId; // Nếu user tách service, chỉ lưu userId
 
+    @Column(name = "phone", nullable = false)
+    private String phone;
+
+    @Column(name = "email", nullable = false)
+    private String email;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItemEntity> items;
@@ -55,6 +60,10 @@ public class OrderEntity {
     // Payment
     @Column(name = "payment_id", columnDefinition = "uuid")
     private UUID paymentMethod;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_method_id")
+    private ShippingMethodEntity shippingMethod; //
 
     // Shipping
     @Column(name = "shipping_address", length = 500)
