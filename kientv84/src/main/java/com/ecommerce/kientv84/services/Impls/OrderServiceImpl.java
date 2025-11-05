@@ -11,6 +11,7 @@ import com.ecommerce.kientv84.dtos.responses.clients.ProductClientResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
 import com.ecommerce.kientv84.entities.OrderEntity;
 import com.ecommerce.kientv84.entities.OrderItemEntity;
+import com.ecommerce.kientv84.entities.ShippingMethodEntity;
 import com.ecommerce.kientv84.enums.OrderStatus;
 import com.ecommerce.kientv84.enums.PaymentStatus;
 import com.ecommerce.kientv84.exceptions.EnumError;
@@ -20,6 +21,7 @@ import com.ecommerce.kientv84.messaging.producer.OrderProducer;
 import com.ecommerce.kientv84.repositories.OrderItemRepository;
 import com.ecommerce.kientv84.mappers.OrderMapper;
 import com.ecommerce.kientv84.repositories.OrderRepository;
+import com.ecommerce.kientv84.repositories.ShippingMethodRepository;
 import com.ecommerce.kientv84.services.OrderService;
 import com.ecommerce.kientv84.utils.KafkaObjectError;
 import feign.FeignException;
@@ -41,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
     private final OrderProducer orderProducer;
+    private final ShippingMethodRepository shippingMethodRepository;
 
     private final static String timestamp = "timestamp";
 
@@ -61,6 +64,9 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrder(OrderRequest request) {
         log.info("[createOrder] start create order ....");
         try {
+            ShippingMethodEntity shippingMethod = shippingMethodRepository.findById(request.getShippingMethod()).orElseThrow(() -> new ServiceException(EnumError.SHIPPING_METHOD_GET_ERROR, "shipping.method.get.err"));
+
+
             // Init order
             OrderEntity orderEntity = OrderEntity.builder()
                     .userId(request.getUserId())
@@ -68,6 +74,9 @@ public class OrderServiceImpl implements OrderService {
                     .status(OrderStatus.CREATED)
                     .paymentStatus(PaymentStatus.PENDING)
                     .paymentMethod(request.getPaymentMethod())
+                    .email(request.getEmail())
+                    .phone(request.getPhone())
+                    .shippingMethod(shippingMethod)
                     .shippingAddress(request.getShippingAddress())
                     .build();
 

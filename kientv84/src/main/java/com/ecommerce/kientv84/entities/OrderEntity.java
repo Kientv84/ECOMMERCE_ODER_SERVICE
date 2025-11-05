@@ -62,7 +62,7 @@ public class OrderEntity {
     private UUID paymentMethod;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipping_method_id")
+    @JoinColumn(name = "shipping_method_id",  nullable = false)
     private ShippingMethodEntity shippingMethod; //
 
     // Shipping

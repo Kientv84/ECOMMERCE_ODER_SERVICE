@@ -17,6 +17,12 @@ public enum EnumError {
     INTERNAL_ERROR("ACC-S-999", "Unexpected internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
     ORDER_ERR_NOT_FOUND("ORDER-CATE_NF", "Not found sub order with id", HttpStatus.BAD_REQUEST),
     ORDER_ERR_DEL_EM("ORDER-CATE-GA", "List ids to delete is empty", HttpStatus.BAD_REQUEST),
+    //----------- SHIPPING METHOD ------------
+    SHIPPING_METHOD_DATA_EXISTED("SHIPPING_METHOD-DTE", "Data exit", HttpStatus.CONFLICT),
+
+    SHIPPING_METHOD_GET_ERROR("SHIPPING_METHOD-GET-ERROR", "Have error in process get shipping method", HttpStatus.BAD_REQUEST),
+    SHIPPING_METHOD_ERR_NOT_FOUND("SHIPPING_METHOD-CATE_NF", "Not found sub shipping method with id", HttpStatus.BAD_REQUEST),
+    SHIPPING_METHOD_ERR_DEL_EM("SHIPPING_METHOD-CATE-GA", "List ids to delete is empty", HttpStatus.BAD_REQUEST),
     //----------- EXTERNAL SERVICES ------------
     //----------- PRODUCE SERVICE ------------
     PRODUCT_NOT_FOUND("PRODUCT-404", "Product not found", HttpStatus.NOT_FOUND),

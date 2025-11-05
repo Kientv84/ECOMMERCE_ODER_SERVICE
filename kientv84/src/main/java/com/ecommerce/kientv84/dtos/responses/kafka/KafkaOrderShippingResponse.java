@@ -17,6 +17,9 @@ public class KafkaOrderShippingResponse {
     private UUID userId;
     private String orderCode;
     private UUID paymentMethod;
+    private String phone;
+    private String email;
+    private String shippingCode;
     private String shippingAddress;
     private BigDecimal totalPrice;
 }

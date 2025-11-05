@@ -13,6 +13,12 @@ import java.util.UUID;
 public class OrderRequest {
     @NotNull(message = "{order.userid.notnull}")
     private UUID userId;
+    @NotNull(message = "{order.phone.notnull}")
+    private String phone;
+    @NotNull(message = "{order.email.notnull}")
+    private String email;
+    @NotNull(message = "{order.shipping.method.notnull}")
+    private UUID shippingMethod;
     @NotNull(message = "{order.items.notnull}")
     private List<ItemRequest> items;
     @NotNull(message = "{order.payment.notnull}")

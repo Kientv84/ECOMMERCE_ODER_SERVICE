@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -30,9 +31,13 @@ public class ShippingMethodEntity {
     private String shippingName;        // "Giao Hàng Nhanh", "Giao Hàng Tiết Kiệm", "Tự giao"
     private BigDecimal baseFee; // Phí cơ bản
     private String description; // Mô tả thêm
-    private Boolean active;     // Có đang được bật hay không
+    private Boolean status;     // Có đang được bật hay không
     @Column(name ="thumbnail_url")
     private String thumbnailUrl; // Ảnh chính
+
+    @OneToMany(mappedBy = "shippingMethod", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderEntity> orders;
+
     // ====== Metadata ======
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
