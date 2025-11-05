@@ -15,5 +15,6 @@ public interface OrderMapper {
     KafkaOrderResponse mapToKafkaOrderResponse(OrderResponse orderResponse);
 
     @Mapping(target = "shippingCode", source = "shippingMethod.shippingCode")
+    @Mapping(target = "status", source = "status")
     KafkaOrderShippingResponse mapToKafkaOrderShippingResponse(OrderEntity orderEntity);
 }

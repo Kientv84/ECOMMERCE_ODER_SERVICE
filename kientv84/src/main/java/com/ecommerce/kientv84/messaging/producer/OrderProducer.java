@@ -10,4 +10,5 @@ public interface OrderProducer {
     void produceOrderEventShipping(KafkaOrderShippingResponse message);
 
     void produceMessageError(KafkaObjectError kafkaObject);
+
 }

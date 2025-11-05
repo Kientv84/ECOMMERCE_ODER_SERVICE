@@ -20,6 +20,7 @@ public class KafkaOrderShippingResponse {
     private String phone;
     private String email;
     private String shippingCode;
+    private String status;
     private String shippingAddress;
     private BigDecimal totalPrice;
 }
