@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService {
             OrderEntity orderEntity = OrderEntity.builder()
                     .userId(request.getUserId())
                     .orderCode(UUID.randomUUID().toString().substring(0, 8))
-                    .status(OrderStatus.CREATED)
+                    .status(OrderStatus.PROCESSING)
                     .paymentStatus(PaymentStatus.PENDING)
                     .paymentMethod(request.getPaymentMethod())
                     .email(request.getEmail())
