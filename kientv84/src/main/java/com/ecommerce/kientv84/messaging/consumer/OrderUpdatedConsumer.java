@@ -1,5 +1,6 @@
 package com.ecommerce.kientv84.messaging.consumer;
 
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderShippingResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
 import com.ecommerce.kientv84.services.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,19 +13,21 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class OrderConsumer {
+public class OrderUpdatedConsumer {
     private final OrderService orderService;
 
-    @KafkaListener(topics = "${spring.kafka.payment.topic.payment-checked}", groupId = "${spring.kafka.payment.group}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${spring.kafka.order.topic.order-updated}", groupId = "spring.kafka.shipping.group", containerFactory = "kafkaListenerContainerFactory")
     public void onMessageHandler(@Payload String message) {
         try {
             log.info("[onMessageHandler] Start consuming message ...");
             log.info("[onMessageHandler] Received message payload: {}", message);
 
-            KafkaPaymentResponse response = new ObjectMapper().readValue(message, KafkaPaymentResponse.class);
-            orderService.listenPaymentService(response);
+            KafkaOrderShippingResponse response = new ObjectMapper().readValue(message, KafkaOrderShippingResponse.class);
+
+            orderService.updateOrderStatusFromShipping(response.getId(), response.getStatus());
         } catch (Exception e) {
             log.error("[onMessageHandler] Error. Err {}", e.getMessage());
         }
     }
 }
+

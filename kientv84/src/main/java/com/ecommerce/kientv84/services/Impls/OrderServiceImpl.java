@@ -238,4 +238,17 @@ public class OrderServiceImpl implements OrderService {
             throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
         }
     }
+
+
+    @Override
+    public void updateOrderStatusFromShipping(UUID orderId, String status) {
+        log.info("Tiến hành update status");
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ServiceException(EnumError.ORDER_ERR_NOT_FOUND, "order.not.found"));
+
+        order.setStatus(OrderStatus.valueOf(status));
+        orderRepository.save(order);
+
+        log.info("[OrderService] Updated order {} to status {}", orderId, status);
+    }
 }

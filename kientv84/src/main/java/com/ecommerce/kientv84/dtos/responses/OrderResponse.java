@@ -2,6 +2,7 @@ package com.ecommerce.kientv84.dtos.responses;
 
 import com.ecommerce.kientv84.dtos.requests.ItemRequest;
 import com.ecommerce.kientv84.entities.ShippingMethodEntity;
+import com.ecommerce.kientv84.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,8 @@ public class OrderResponse {
     private String orderCode;
     private UUID paymentMethod;
     private String shippingAddress;
+    private String paymentStatus;
+    private String status;
     private String phone;
     private String email;
     private ShippingMethodResponse shippingMethod;

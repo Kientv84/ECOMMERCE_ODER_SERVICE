@@ -21,4 +21,6 @@ public interface OrderService {
     String deleteOrder(List<UUID> ids);
 
     void listenPaymentService(KafkaPaymentResponse kafkaPaymentResponse);
+
+    void updateOrderStatusFromShipping(UUID orderId, String status);
 }

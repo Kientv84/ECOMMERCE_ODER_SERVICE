@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
+    @Mapping(target = "status", source = "status")
+    @Mapping(target = "paymentStatus", source = "paymentStatus")
     OrderResponse mapToOrderResponse(OrderEntity orderEntity);
 
     @Mapping(target = "shippingMethodCode", source = "shippingMethod.shippingCode")
