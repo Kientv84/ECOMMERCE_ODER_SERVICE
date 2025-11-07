@@ -2,6 +2,7 @@ package com.ecommerce.kientv84.messaging.consumer;
 
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderShippingResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaShipmentStatusUpdated;
 import com.ecommerce.kientv84.services.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,9 @@ public class OrderUpdatedConsumer {
             log.info("[onMessageHandler] Start consuming message ...");
             log.info("[onMessageHandler] Received message payload: {}", message);
 
-            KafkaOrderShippingResponse response = new ObjectMapper().readValue(message, KafkaOrderShippingResponse.class);
+            KafkaShipmentStatusUpdated response = new ObjectMapper().readValue(message, KafkaShipmentStatusUpdated.class);
 
-            orderService.updateOrderStatusFromShipping(response.getId(), response.getStatus());
+            orderService.updateOrderStatusFromShipping(response.getOrderId(), response.getNewStatus());
         } catch (Exception e) {
             log.error("[onMessageHandler] Error. Err {}", e.getMessage());
         }

@@ -52,6 +52,7 @@ public class OrderEntity {
 
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private OrderStatus status;
 
     @Column(name = "total_price", nullable = false)

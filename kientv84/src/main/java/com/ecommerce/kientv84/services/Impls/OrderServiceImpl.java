@@ -8,6 +8,7 @@ import com.ecommerce.kientv84.dtos.requests.OrderUpdateRequest;
 import com.ecommerce.kientv84.dtos.responses.OrderResponse;
 import com.ecommerce.kientv84.dtos.responses.clients.PaymentMethodResponse;
 import com.ecommerce.kientv84.dtos.responses.clients.ProductClientResponse;
+import com.ecommerce.kientv84.dtos.responses.clients.requests.PaymentUpdateRequest;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
 import com.ecommerce.kientv84.entities.OrderEntity;
 import com.ecommerce.kientv84.entities.OrderItemEntity;
@@ -44,6 +45,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductClient productClient;
     private final OrderProducer orderProducer;
     private final ShippingMethodRepository shippingMethodRepository;
+    private final PaymentClient paymentClient;
 
     private final static String timestamp = "timestamp";
 
@@ -226,6 +228,7 @@ public class OrderServiceImpl implements OrderService {
 
                 orderProducer.produceOrderEventShipping(orderMapper.mapToKafkaOrderShippingResponse(order));
             }
+
             // Nếu thanh toán thất bại → hủy đơn
             else if (newStatus == PaymentStatus.FAILED) {
                 //TODO:Set staus order để FAILED,  gọi noti service
@@ -239,16 +242,29 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-
+    @Transactional
     @Override
     public void updateOrderStatusFromShipping(UUID orderId, String status) {
-        log.info("Tiến hành update status");
-        OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ServiceException(EnumError.ORDER_ERR_NOT_FOUND, "order.not.found"));
+       try {
+           log.info("Tiến hành update status");
+           OrderEntity order = orderRepository.findById(orderId)
+                   .orElseThrow(() -> new ServiceException(EnumError.ORDER_ERR_NOT_FOUND, "order.not.found"));
 
-        order.setStatus(OrderStatus.valueOf(status));
-        orderRepository.save(order);
+           OrderStatus newStatus = OrderStatus.valueOf(status.trim().toUpperCase());
+           log.info("Parsed status successfully: {}", newStatus);
 
-        log.info("[OrderService] Updated order {} to status {}", orderId, status);
+           order.setStatus(newStatus);
+
+//        // Gọi api để update payment service
+//        paymentClient.updatePaymentById(orderId, new PaymentUpdateRequest(newStatus.name()));
+
+           orderRepository.save(order);
+
+           log.info("[OrderService] Updated order {} to status {}", orderId, newStatus);
+       } catch (ServiceException e) {
+           throw e;
+       } catch (Exception e) {
+           throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
+       }
     }
 }

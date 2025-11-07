@@ -14,6 +14,6 @@ import java.util.UUID;
 public class KafkaShipmentStatusUpdated {
     private UUID orderId;
     private UUID shipmentId;
-    private String newStatus; // DELIVERING, COMPLETED, FAILED
+    private String newStatus;
     private String trackingCode;
 }
