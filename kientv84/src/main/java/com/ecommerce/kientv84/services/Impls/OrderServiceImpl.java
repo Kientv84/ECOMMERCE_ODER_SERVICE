@@ -6,9 +6,7 @@ import com.ecommerce.kientv84.dtos.requests.ItemRequest;
 import com.ecommerce.kientv84.dtos.requests.OrderRequest;
 import com.ecommerce.kientv84.dtos.requests.OrderUpdateRequest;
 import com.ecommerce.kientv84.dtos.responses.OrderResponse;
-import com.ecommerce.kientv84.dtos.responses.clients.PaymentMethodResponse;
 import com.ecommerce.kientv84.dtos.responses.clients.ProductClientResponse;
-import com.ecommerce.kientv84.dtos.responses.clients.requests.PaymentUpdateRequest;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
 import com.ecommerce.kientv84.entities.OrderEntity;
 import com.ecommerce.kientv84.entities.OrderItemEntity;
@@ -17,9 +15,7 @@ import com.ecommerce.kientv84.enums.OrderStatus;
 import com.ecommerce.kientv84.enums.PaymentStatus;
 import com.ecommerce.kientv84.exceptions.EnumError;
 import com.ecommerce.kientv84.exceptions.ServiceException;
-import com.ecommerce.kientv84.mappers.OrderItemMapper;
 import com.ecommerce.kientv84.messaging.producer.OrderProducer;
-import com.ecommerce.kientv84.repositories.OrderItemRepository;
 import com.ecommerce.kientv84.mappers.OrderMapper;
 import com.ecommerce.kientv84.repositories.OrderRepository;
 import com.ecommerce.kientv84.repositories.ShippingMethodRepository;
@@ -205,7 +201,40 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void listenPaymentService(KafkaPaymentResponse kafkaPaymentResponse) {
+    public void listenPaymentShipCode(KafkaPaymentResponse kafkaPaymentResponse) {
+        if (kafkaPaymentResponse == null) {
+            log.error("[listenPaymentShipCode] Missing KafkaPaymentResponse data");
+            return;
+        }
+
+        log.info("[listenPaymentShipCode] Processing payment event: {}", kafkaPaymentResponse);
+
+        try {
+            OrderEntity order = orderRepository.findById(kafkaPaymentResponse.getOrderId())
+                    .orElseThrow(() -> new ServiceException(EnumError.ORDER_ERR_NOT_FOUND, "order.not.found"));
+
+            // Update status payment từ message
+            PaymentStatus newStatus = PaymentStatus.valueOf(kafkaPaymentResponse.getStatus());
+
+            if (newStatus == PaymentStatus.COD_PENDING) {
+                //TODO: Update status
+                order.setPaymentStatus(newStatus);
+
+                //TODO: Gọi shipping Service
+                orderProducer.produceOrderEventShipping(orderMapper.mapToKafkaOrderShippingResponse(order));
+            }
+
+
+        } catch (Exception e) {
+            log.error("[listenPaymentService] Error: {}", e.getMessage(), e);
+            KafkaObjectError kafkaError = new KafkaObjectError("OS-002", null, e.getMessage());
+            orderProducer.produceMessageError(kafkaError);
+            throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
+        }
+    }
+    @Override
+    @Transactional
+    public void listenPaymentFailed(KafkaPaymentResponse kafkaPaymentResponse) {
         if (kafkaPaymentResponse == null) {
             log.error("[listenPaymentService] Missing KafkaPaymentResponse data");
             return;
@@ -220,19 +249,44 @@ public class OrderServiceImpl implements OrderService {
             // Update status payment từ message
             PaymentStatus newStatus = PaymentStatus.valueOf(kafkaPaymentResponse.getStatus());
 
-            order.setPaymentStatus(newStatus);
+            if (newStatus == PaymentStatus.FAILED) {
+                //TODO:Set staus order để FAILED,  gọi noti service, gọi inventory để hồi số lượng
+                order.setPaymentStatus(newStatus);
+            }
 
-            // Nếu thanh toán thành công (hoặc COD_PENDING), cập nhật order status
-            if (newStatus == PaymentStatus.PAID || newStatus == PaymentStatus.COD_PENDING) {
-                //TODO: gọi shipping service
+        } catch (Exception e) {
+            log.error("[listenPaymentService] Error: {}", e.getMessage(), e);
+            KafkaObjectError kafkaError = new KafkaObjectError("OS-002", null, e.getMessage());
+            orderProducer.produceMessageError(kafkaError);
+            throw new ServiceException(EnumError.INTERNAL_ERROR, "sys.internal.error");
+        }
+    }
 
+    @Override
+    @Transactional
+    public void listenPaymentSuccess(KafkaPaymentResponse kafkaPaymentResponse) {
+        if (kafkaPaymentResponse == null) {
+            log.error("[listenPaymentSuccess] Missing KafkaPaymentResponse data");
+            return;
+        }
+
+        log.info("[listenPaymentSuccess] Processing payment event: {}", kafkaPaymentResponse);
+
+        try {
+            OrderEntity order = orderRepository.findById(kafkaPaymentResponse.getOrderId())
+                    .orElseThrow(() -> new ServiceException(EnumError.ORDER_ERR_NOT_FOUND, "order.not.found"));
+
+            // Update status payment từ message
+            PaymentStatus newStatus = PaymentStatus.valueOf(kafkaPaymentResponse.getStatus());
+
+            if (newStatus == PaymentStatus.PAID) {
+                //TODO: Update status
+                order.setPaymentStatus(newStatus);
+
+                //TODO: Gọi shipping Service
                 orderProducer.produceOrderEventShipping(orderMapper.mapToKafkaOrderShippingResponse(order));
             }
 
-            // Nếu thanh toán thất bại → hủy đơn
-            else if (newStatus == PaymentStatus.FAILED) {
-                //TODO:Set staus order để FAILED,  gọi noti service
-            }
 
         } catch (Exception e) {
             log.error("[listenPaymentService] Error: {}", e.getMessage(), e);

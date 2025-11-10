@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -24,5 +25,6 @@ public class KafkaOrderShippingResponse {
     private String status;
     private String shippingAddress;
     private BigDecimal totalPrice;
+    private List<KafkaOrderItemResponse> items;
 }
 

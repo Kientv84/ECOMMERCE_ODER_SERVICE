@@ -12,19 +12,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class OrderConsumer {
+public class OrderConsumerPaymentShipCode {
     private final OrderService orderService;
 
-    @KafkaListener(topics = "${spring.kafka.payment.topic.payment-checked}", groupId = "${spring.kafka.payment.group}", containerFactory = "kafkaListenerContainerFactory")
-    public void onMessageHandler(@Payload String message) {
+    @KafkaListener(topics = "${spring.kafka.payment.topic.payment-cod-pending}", groupId = "${spring.kafka.payment.group}", containerFactory = "kafkaListenerContainerFactory")
+    public void onMessageHandlerPaymentShipCode(@Payload String message) {
         try {
-            log.info("[onMessageHandler] Start consuming message ...");
-            log.info("[onMessageHandler] Received message payload: {}", message);
+            log.info("[onMessageHandlerPaymentShipCode] Start consuming message ...");
+            log.info("[onMessageHandlerPaymentShipCode] Received message payload: {}", message);
 
             KafkaPaymentResponse response = new ObjectMapper().readValue(message, KafkaPaymentResponse.class);
-            orderService.listenPaymentService(response);
+            orderService.listenPaymentShipCode(response);
         } catch (Exception e) {
-            log.error("[onMessageHandler] Error. Err {}", e.getMessage());
+            log.error("[onMessageHandlerPaymentShipCode] Error. Err {}", e.getMessage());
         }
     }
 }

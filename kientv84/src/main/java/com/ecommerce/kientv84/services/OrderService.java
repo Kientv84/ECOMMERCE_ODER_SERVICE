@@ -20,7 +20,11 @@ public interface OrderService {
 
     String deleteOrder(List<UUID> ids);
 
-    void listenPaymentService(KafkaPaymentResponse kafkaPaymentResponse);
+    void listenPaymentShipCode(KafkaPaymentResponse kafkaPaymentResponse);
+
+    void listenPaymentSuccess(KafkaPaymentResponse kafkaPaymentResponse);
+
+    void listenPaymentFailed(KafkaPaymentResponse kafkaPaymentResponse);
 
     void updateOrderStatusFromShipping(UUID orderId, String status);
 }

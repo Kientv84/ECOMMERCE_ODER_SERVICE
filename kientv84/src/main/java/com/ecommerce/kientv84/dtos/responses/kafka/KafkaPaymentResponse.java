@@ -20,8 +20,10 @@ public class KafkaPaymentResponse {
     private UUID orderId;
     private UUID userId;
     private String orderCode;
+    private KafkaPaymentMethodResponse paymentMethod;
     private BigDecimal amount;
     private String status;
     private String transactionCode;
+    private Date createdDate;
+    private Date updateDate;
 }
-
