@@ -13,5 +13,6 @@ public class KafkaTopicProperties {
     private String orderCreated;
     private String errorOrder;
     private String orderReadyForShipping;
+    private String orderEventPaymentUpdated;
 }
 

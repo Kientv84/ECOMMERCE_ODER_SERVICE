@@ -2,6 +2,7 @@ package com.ecommerce.kientv84.messaging.producer;
 
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderShippingResponse;
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentUpdated;
 import com.ecommerce.kientv84.utils.KafkaObjectError;
 
 public interface OrderProducer {
@@ -11,4 +12,5 @@ public interface OrderProducer {
 
     void produceMessageError(KafkaObjectError kafkaObject);
 
+    void produceMessageOrderEventUpdatePayment(KafkaPaymentUpdated message);
 }

@@ -309,10 +309,13 @@ public class OrderServiceImpl implements OrderService {
 
            order.setStatus(newStatus);
 
-//        // Gọi api để update payment service
-//        paymentClient.updatePaymentById(orderId, new PaymentUpdateRequest(newStatus.name()));
-
            orderRepository.save(order);
+
+           // Nếu giao hàng thành công => phát sự kiện để Payment service cập nhật trạng thái "PAID"
+           if (newStatus == OrderStatus.DELIVERED) {
+               log.info("[updateOrderStatusFromShipping] Order delivered -> Producing received event...");
+               orderProducer.produceMessageOrderEventUpdatePayment(orderMapper.mapToKafkaPaymentUpdated(order));
+           }
 
            log.info("[OrderService] Updated order {} to status {}", orderId, newStatus);
        } catch (ServiceException e) {

@@ -2,6 +2,7 @@ package com.ecommerce.kientv84.messaging.producer;
 
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderShippingResponse;
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentUpdated;
 import com.ecommerce.kientv84.properties.KafkaTopicProperties;
 import com.ecommerce.kientv84.services.KafkaService;
 import com.ecommerce.kientv84.utils.KafkaObjectError;
@@ -34,6 +35,13 @@ public class OrderProducerImpl implements OrderProducer {
     public void produceOrderEventShipping(KafkaOrderShippingResponse message) {
         var topic = kafkaTopicProperties.getOrderReadyForShipping();
         log.info("[produceOrderEventShipping] producing order ready for shipping to topic {}", topic);
+        kafkaService.send(topic, message);
+    }
+
+    @Override
+    public void produceMessageOrderEventUpdatePayment(KafkaPaymentUpdated message) {
+        var topic = kafkaTopicProperties.getOrderEventPaymentUpdated();
+        log.info("[produceMessageOrderEventUpdatePayment] producing order event to update status payment {}", topic);
         kafkaService.send(topic, message);
     }
 }
