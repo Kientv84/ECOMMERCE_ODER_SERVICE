@@ -27,11 +27,22 @@ public class ShippingMethodEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(name = "shipping_code")
     private String shippingCode;        // GHN, GHTK, INTERNAL, PICKUP
+
+    @Column(name = "shipping_name")
     private String shippingName;        // "Giao Hàng Nhanh", "Giao Hàng Tiết Kiệm", "Tự giao"
+
+    @Column(name = "base_fee")
     private BigDecimal baseFee; // Phí cơ bản
+
+    @Column(name = "description")
     private String description; // Mô tả thêm
+
+    @Column(name = "status")
     private Boolean status;     // Có đang được bật hay không
+
     @Column(name ="thumbnail_url")
     private String thumbnailUrl; // Ảnh chính
 

@@ -53,6 +53,7 @@ public class OrderServiceImpl implements OrderService {
             return responses;
 
         } catch (Exception e) {
+            log.error("Error get all orders", e);
             throw new ServiceException(EnumError.ORDER_GET_ERROR, "order.get.error");
         }
     }
