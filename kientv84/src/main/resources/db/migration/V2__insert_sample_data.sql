@@ -15,15 +15,15 @@ INSERT INTO order_entity (
     id, order_code, user_id, phone, email, payment_status, status, total_price, payment_id, shipping_method_id, shipping_address, create_date, update_date
 )
 VALUES (
-    gen_random_uuid(),
+    '99999999-9999-9999-9999-999999999999',
     'ORD-0001',
     'c743008e-cd42-467e-bf10-35124b9a28b1',
     '0968727900',
     'truongchikien2021@example.com',
     'PENDING',
-    'PROCESSING',
+    'SHIPPED',
     4197000.00,
-    '50aae9ae-ba5b-4627-ad7f-7546f5893bec',
+    '42818710-72dd-44c4-906b-e28eaaef859f',
     'c05fe63d-1843-45b8-b960-7d15c2b5d93f',
     '268/23 Lã Xuân Oai, Long Trường, Quận 9, Hồ Chí Minh',
     CURRENT_TIMESTAMP,
