@@ -2,7 +2,9 @@ package com.ecommerce.kientv84.controller;
 
 import com.ecommerce.kientv84.dtos.requests.OrderRequest;
 import com.ecommerce.kientv84.dtos.requests.OrderUpdateRequest;
+import com.ecommerce.kientv84.dtos.requests.search.order.OrderSearchRequest;
 import com.ecommerce.kientv84.dtos.responses.OrderResponse;
+import com.ecommerce.kientv84.dtos.responses.PagedResponse;
 import com.ecommerce.kientv84.services.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +20,15 @@ import java.util.UUID;
 public class OrderController {
     private final OrderService orderService;
 
-    @GetMapping("/orders")
-    public ResponseEntity<List<OrderResponse>> getAllOrder() {
-        return ResponseEntity.ok(orderService.getAllOrder());
+    @PostMapping("/orders/filter")
+    public ResponseEntity<PagedResponse<OrderResponse>> getAllOrder(OrderSearchRequest orderSearchRequest) {
+        return ResponseEntity.ok(orderService.getAllOrder(orderSearchRequest));
+    }
+
+    @GetMapping("/orders/suggestion")
+    public ResponseEntity<List<OrderResponse>> getOrderSuggestions(@RequestParam String q,
+                                                                   @RequestParam(defaultValue = "5") int limit) {
+        return ResponseEntity.ok(orderService.searchOrderSuggestion(q, limit));
     }
 
     @PostMapping("/order")

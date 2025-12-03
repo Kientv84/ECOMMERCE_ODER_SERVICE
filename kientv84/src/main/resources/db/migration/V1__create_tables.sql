@@ -65,3 +65,133 @@ CREATE TABLE IF NOT EXISTS order_item_entity (
 
 CREATE INDEX IF NOT EXISTS idx_order_item_order ON order_item_entity(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_item_product ON order_item_entity(product_id);
+
+
+-- ===== ORDER SEARCH =====
+
+ALTER TABLE order_entity
+ADD COLUMN IF NOT EXISTS document_tsv tsvector;
+
+UPDATE order_entity
+SET document_tsv = to_tsvector(
+     'simple',
+     coalesce(unaccent(lower(order_code)),'') || ' ' ||
+     coalesce(unaccent(lower(phone)),'') || ' ' ||
+     coalesce(unaccent(lower(email)),'')
+);
+
+CREATE INDEX IF NOT EXISTS idx_order_document_tsv
+ON order_entity USING GIN(document_tsv);
+
+CREATE OR REPLACE FUNCTION order_tsv_trigger() RETURNS trigger AS $$
+BEGIN
+    NEW.document_tsv := to_tsvector(
+        'simple',
+        coalesce(unaccent(lower(NEW.order_code)),'') || ' ' ||
+        coalesce(unaccent(lower(NEW.phone)),'') || ' ' ||
+        coalesce(unaccent(lower(NEW.email)),'')
+    );
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tsvectorupdate_order ON order_entity;
+
+CREATE TRIGGER tsvectorupdate_order
+BEFORE INSERT OR UPDATE ON order_entity
+FOR EACH ROW
+EXECUTE FUNCTION order_tsv_trigger();
+
+
+-- Search suggest function
+CREATE OR REPLACE FUNCTION order_search_suggest(input_text text, limit_count int DEFAULT 5)
+RETURNS TABLE (
+    order_id uuid,
+    order_code text,
+    phone text,
+    email text,
+    rank float
+) AS $$
+DECLARE
+    q text;
+BEGIN
+    q := unaccent(lower(input_text));
+
+    RETURN QUERY
+    SELECT
+        id AS order_id,
+        order_code,
+        phone,
+        email,
+        ts_rank(document_tsv, to_tsquery('simple', q || ':*')) AS rank
+    FROM order_entity
+    WHERE document_tsv @@ to_tsquery('simple', q || ':*')
+    ORDER BY rank DESC
+    LIMIT limit_count;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- ===== SHIPPING METHOD SEARCH =====
+
+ALTER TABLE shipping_methods_entity
+ADD COLUMN IF NOT EXISTS document_tsv tsvector;
+
+UPDATE shipping_methods_entity
+SET document_tsv = to_tsvector(
+     'simple',
+     coalesce(unaccent(lower(shipping_code)),'') || ' ' ||
+     coalesce(unaccent(lower(shipping_name)),'') || ' ' ||
+     coalesce(unaccent(lower(description)),'')
+);
+
+CREATE INDEX IF NOT EXISTS idx_shipping_method_document_tsv
+ON shipping_methods_entity USING GIN(document_tsv);
+
+CREATE OR REPLACE FUNCTION shipping_method_tsv_trigger() RETURNS trigger AS $$
+BEGIN
+    NEW.document_tsv := to_tsvector(
+        'simple',
+        coalesce(unaccent(lower(NEW.shipping_code)),'') || ' ' ||
+        coalesce(unaccent(lower(NEW.shipping_name)),'') || ' ' ||
+        coalesce(unaccent(lower(NEW.description)),'')
+    );
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS tsvectorupdate_shipping_method ON shipping_methods_entity;
+
+CREATE TRIGGER tsvectorupdate_shipping_method
+BEFORE INSERT OR UPDATE ON shipping_methods_entity
+FOR EACH ROW
+EXECUTE FUNCTION shipping_method_tsv_trigger();
+
+
+-- Search suggest function
+CREATE OR REPLACE FUNCTION shipping_method_search_suggest(input_text text, limit_count int DEFAULT 5)
+RETURNS TABLE (
+    shipping_method_id uuid,
+    shipping_code text,
+    shipping_name text,
+    description text,
+    rank float
+) AS $$
+DECLARE
+    q text;
+BEGIN
+    q := unaccent(lower(input_text));
+
+    RETURN QUERY
+    SELECT
+        id AS shipping_method_id,
+        shipping_code,
+        shipping_name,
+        description,
+        ts_rank(document_tsv, to_tsquery('simple', q || ':*')) AS rank
+    FROM shipping_methods_entity
+    WHERE document_tsv @@ to_tsquery('simple', q || ':*')
+    ORDER BY rank DESC
+    LIMIT limit_count;
+END;
+$$ LANGUAGE plpgsql;
