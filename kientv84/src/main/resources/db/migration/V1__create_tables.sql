@@ -1,6 +1,7 @@
 -- ======================================
--- V1__create_order_tables.sql
+-- V1__create_tables.sql
 -- ======================================
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- Extension for gen_random_uuid()
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
@@ -66,7 +67,6 @@ CREATE TABLE IF NOT EXISTS order_item_entity (
 CREATE INDEX IF NOT EXISTS idx_order_item_order ON order_item_entity(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_item_product ON order_item_entity(product_id);
 
-
 -- ===== ORDER SEARCH =====
 
 ALTER TABLE order_entity
@@ -75,9 +75,9 @@ ADD COLUMN IF NOT EXISTS document_tsv tsvector;
 UPDATE order_entity
 SET document_tsv = to_tsvector(
      'simple',
-     coalesce(unaccent(lower(order_code)),'') || ' ' ||
-     coalesce(unaccent(lower(phone)),'') || ' ' ||
-     coalesce(unaccent(lower(email)),'')
+     coalesce(public.unaccent(lower(order_code)),'') || ' ' ||
+     coalesce(public.unaccent(lower(phone)),'') || ' ' ||
+     coalesce(public.unaccent(lower(email)),'')
 );
 
 CREATE INDEX IF NOT EXISTS idx_order_document_tsv
@@ -87,9 +87,9 @@ CREATE OR REPLACE FUNCTION order_tsv_trigger() RETURNS trigger AS $$
 BEGIN
     NEW.document_tsv := to_tsvector(
         'simple',
-        coalesce(unaccent(lower(NEW.order_code)),'') || ' ' ||
-        coalesce(unaccent(lower(NEW.phone)),'') || ' ' ||
-        coalesce(unaccent(lower(NEW.email)),'')
+        coalesce(public.unaccent(lower(NEW.order_code)),'') || ' ' ||
+        coalesce(public.unaccent(lower(NEW.phone)),'') || ' ' ||
+        coalesce(public.unaccent(lower(NEW.email)),'')
     );
     RETURN NEW;
 END
@@ -115,7 +115,7 @@ RETURNS TABLE (
 DECLARE
     q text;
 BEGIN
-    q := unaccent(lower(input_text));
+    q := public.unaccent(lower(input_text));
 
     RETURN QUERY
     SELECT
@@ -140,9 +140,9 @@ ADD COLUMN IF NOT EXISTS document_tsv tsvector;
 UPDATE shipping_methods_entity
 SET document_tsv = to_tsvector(
      'simple',
-     coalesce(unaccent(lower(shipping_code)),'') || ' ' ||
-     coalesce(unaccent(lower(shipping_name)),'') || ' ' ||
-     coalesce(unaccent(lower(description)),'')
+     coalesce(public.unaccent(lower(shipping_code)),'') || ' ' ||
+     coalesce(public.unaccent(lower(shipping_name)),'') || ' ' ||
+     coalesce(public.unaccent(lower(description)),'')
 );
 
 CREATE INDEX IF NOT EXISTS idx_shipping_method_document_tsv
@@ -152,9 +152,9 @@ CREATE OR REPLACE FUNCTION shipping_method_tsv_trigger() RETURNS trigger AS $$
 BEGIN
     NEW.document_tsv := to_tsvector(
         'simple',
-        coalesce(unaccent(lower(NEW.shipping_code)),'') || ' ' ||
-        coalesce(unaccent(lower(NEW.shipping_name)),'') || ' ' ||
-        coalesce(unaccent(lower(NEW.description)),'')
+        coalesce(public.unaccent(lower(NEW.shipping_code)),'') || ' ' ||
+        coalesce(public.unaccent(lower(NEW.shipping_name)),'') || ' ' ||
+        coalesce(public.unaccent(lower(NEW.description)),'')
     );
     RETURN NEW;
 END
@@ -180,7 +180,7 @@ RETURNS TABLE (
 DECLARE
     q text;
 BEGIN
-    q := unaccent(lower(input_text));
+    q := public.unaccent(lower(input_text));
 
     RETURN QUERY
     SELECT

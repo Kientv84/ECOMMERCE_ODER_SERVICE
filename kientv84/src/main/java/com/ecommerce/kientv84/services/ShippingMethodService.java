@@ -2,13 +2,17 @@ package com.ecommerce.kientv84.services;
 
 import com.ecommerce.kientv84.dtos.requests.ShippingMethodRequest;
 import com.ecommerce.kientv84.dtos.requests.ShippingMethodUpdateRequest;
+import com.ecommerce.kientv84.dtos.requests.search.shippingMethod.ShippingMethodSearchRequest;
+import com.ecommerce.kientv84.dtos.responses.PagedResponse;
 import com.ecommerce.kientv84.dtos.responses.ShippingMethodResponse;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface ShippingMethodService {
-    List<ShippingMethodResponse> getAllShippingMethod();
+    PagedResponse<ShippingMethodResponse> getAllShippingMethod(ShippingMethodSearchRequest request);
+
+    List<ShippingMethodResponse> searchShippingMethodSuggestion(String q, int limit);
 
     ShippingMethodResponse createShippingMethod(ShippingMethodRequest request);
 

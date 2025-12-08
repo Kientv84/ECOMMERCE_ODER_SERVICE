@@ -4,7 +4,9 @@ import com.ecommerce.kientv84.dtos.requests.OrderRequest;
 import com.ecommerce.kientv84.dtos.requests.OrderUpdateRequest;
 import com.ecommerce.kientv84.dtos.requests.ShippingMethodRequest;
 import com.ecommerce.kientv84.dtos.requests.ShippingMethodUpdateRequest;
+import com.ecommerce.kientv84.dtos.requests.search.shippingMethod.ShippingMethodSearchRequest;
 import com.ecommerce.kientv84.dtos.responses.OrderResponse;
+import com.ecommerce.kientv84.dtos.responses.PagedResponse;
 import com.ecommerce.kientv84.dtos.responses.ShippingMethodResponse;
 import com.ecommerce.kientv84.services.OrderService;
 import com.ecommerce.kientv84.services.ShippingMethodService;
@@ -22,9 +24,15 @@ import java.util.UUID;
 public class ShippingMethodController {
     private final ShippingMethodService shippingMethodService;
 
-    @GetMapping("/shipping-methods")
-    public ResponseEntity<List<ShippingMethodResponse>> getAllShippingMethod() {
-        return ResponseEntity.ok(shippingMethodService.getAllShippingMethod());
+    @PostMapping("/shipping-methods/filter")
+    public ResponseEntity<PagedResponse<ShippingMethodResponse>> getAllShippingMethod(ShippingMethodSearchRequest request) {
+        return ResponseEntity.ok(shippingMethodService.getAllShippingMethod(request));
+    }
+
+    @GetMapping("/shipping-methods/suggestion")
+    public ResponseEntity<List<ShippingMethodResponse>> getShippingMethodSuggestions(@RequestParam String q,
+                                                                   @RequestParam(defaultValue = "5") int limit) {
+        return ResponseEntity.ok(shippingMethodService.searchShippingMethodSuggestion(q, limit));
     }
 
     @PostMapping("/shipping-method")
