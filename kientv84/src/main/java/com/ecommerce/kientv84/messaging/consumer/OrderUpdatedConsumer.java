@@ -1,9 +1,11 @@
 package com.ecommerce.kientv84.messaging.consumer;
 
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaEvent;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderShippingResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaShipmentStatusUpdated;
 import com.ecommerce.kientv84.services.OrderService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +25,16 @@ public class OrderUpdatedConsumer {
             log.info("[onMessageHandler] Start consuming message ...");
             log.info("[onMessageHandler] Received message payload: {}", message);
 
-            KafkaShipmentStatusUpdated response = new ObjectMapper().readValue(message, KafkaShipmentStatusUpdated.class);
+            ObjectMapper objectMapper = new ObjectMapper();
 
-            orderService.updateOrderStatusFromShipping(response.getOrderId(), response.getNewStatus());
+            KafkaEvent<KafkaShipmentStatusUpdated> event =
+                    objectMapper.readValue(
+                            message,
+                            new TypeReference<KafkaEvent<KafkaShipmentStatusUpdated>>() {}
+                    );
+
+            KafkaShipmentStatusUpdated payload = event.getPayload();
+            orderService.updateOrderStatusFromShipping(payload.getOrderId(), payload.getNewStatus());
         } catch (Exception e) {
             log.error("[onMessageHandler] Error. Err {}", e.getMessage());
         }

@@ -1,7 +1,9 @@
 package com.ecommerce.kientv84.messaging.consumer;
 
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaEvent;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
 import com.ecommerce.kientv84.services.OrderService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +23,16 @@ public class OrderConsumerPaymentSuccess {
             log.info("[onMessageHandlerPaymentSuccess] Start consuming message ...");
             log.info("[onMessageHandlerPaymentSuccess] Received message payload: {}", message);
 
-            KafkaPaymentResponse response = new ObjectMapper().readValue(message, KafkaPaymentResponse.class);
-            orderService.listenPaymentSuccess(response);
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            KafkaEvent<KafkaPaymentResponse> event =
+                    objectMapper.readValue(
+                            message,
+                            new TypeReference<KafkaEvent<KafkaPaymentResponse>>() {}
+                    );
+
+            KafkaPaymentResponse payload = event.getPayload();
+            orderService.listenPaymentSuccess(payload);
         } catch (Exception e) {
             log.error("[onMessageHandlerPaymentShipCode] Error. Err {}", e.getMessage());
         }

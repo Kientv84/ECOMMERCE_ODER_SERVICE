@@ -12,6 +12,8 @@ import com.ecommerce.kientv84.dtos.requests.search.order.OrderSearchRequest;
 import com.ecommerce.kientv84.dtos.responses.OrderResponse;
 import com.ecommerce.kientv84.dtos.responses.PagedResponse;
 import com.ecommerce.kientv84.dtos.responses.clients.ProductClientResponse;
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaEvent;
+import com.ecommerce.kientv84.dtos.responses.kafka.KafkaOrderResponse;
 import com.ecommerce.kientv84.dtos.responses.kafka.KafkaPaymentResponse;
 import com.ecommerce.kientv84.entities.OrderEntity;
 import com.ecommerce.kientv84.entities.OrderItemEntity;
@@ -188,6 +190,7 @@ public class OrderServiceImpl implements OrderService {
             redisService.deleteByKey("orders:list:*");
 
             // producer message lên kafka
+
             orderProducer.produceOrderEventSuccess(orderMapper.mapToKafkaOrderResponse(response));
 
             return response;
