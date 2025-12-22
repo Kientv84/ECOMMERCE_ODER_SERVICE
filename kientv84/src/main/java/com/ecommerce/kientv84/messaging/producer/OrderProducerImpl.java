@@ -1,5 +1,6 @@
 package com.ecommerce.kientv84.messaging.producer;
 
+import com.ecommerce.kientv84.commons.EventType;
 import com.ecommerce.kientv84.dtos.responses.kafka.*;
 import com.ecommerce.kientv84.properties.KafkaTopicProperties;
 import com.ecommerce.kientv84.services.KafkaService;
@@ -26,7 +27,7 @@ public class OrderProducerImpl implements OrderProducer {
         KafkaEvent<KafkaOrderResponse> message = KafkaEvent.<KafkaOrderResponse>builder()
                 .metadata(EventMetadata.builder()
                         .eventId(UUID.randomUUID())
-                        .eventType(topic)
+                        .eventType(EventType.ORDER_CREATED.name())
                         .source("order-service")
                         .version(1)
                         .build())
@@ -50,7 +51,7 @@ public class OrderProducerImpl implements OrderProducer {
         KafkaEvent<KafkaOrderShippingResponse> message = KafkaEvent.<KafkaOrderShippingResponse>builder()
                 .metadata(EventMetadata.builder()
                         .eventId(UUID.randomUUID())
-                        .eventType(topic)
+                        .eventType(EventType.ORDER_READY_FOR_SHIPPING.name())
                         .source("order-service")
                         .version(1)
                         .build())
@@ -68,7 +69,7 @@ public class OrderProducerImpl implements OrderProducer {
         KafkaEvent<KafkaPaymentUpdated> message = KafkaEvent.<KafkaPaymentUpdated>builder()
                 .metadata(EventMetadata.builder()
                         .eventId(UUID.randomUUID())
-                        .eventType(topic)
+                        .eventType(EventType.ORDER_PAYMENT_UPDATED.name())
                         .source("order-service")
                         .version(1)
                         .build())
